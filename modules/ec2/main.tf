@@ -3,18 +3,20 @@ provider "aws" {
 }
 
 
-data "aws_ami" "amazon-linux-2" {
- most_recent = true
+data "aws_ami" "ami" {
+  most_recent = true
 
- filter {
-   name   = "owners"
-   values = ["amazon"]
- }
+  filter {
+    name   = "name"
+    values = [var.aminame]
+  }
 
- filter {
-   name   = "name"
-   values = ["amzn2-ami-hvm*"]
- }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = [var.owner] # Canonical
 }
 
 resource "aws_default_vpc" "default" {
@@ -75,7 +77,7 @@ resource "aws_default_security_group" "default" {
 
 
 resource "aws_instance" "instance" {
-  ami                    = data.aws_ami.amazon-linux-2.id
+  ami                    = data.aws_ami.ami.id
   instance_type          = "t2.micro"
   subnet_id              = aws_default_subnet.default_az1.id
   vpc_security_group_ids = [aws_default_security_group.default.id]
