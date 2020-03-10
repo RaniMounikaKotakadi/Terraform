@@ -1,0 +1,25 @@
+#! /bin/bash
+sudo yum update -y
+sudo yum install -y httpd.x86_64
+sudo service httpd start
+sudo service httpd enable
+echo "<h1>Deployed via Terraform</h1>" | sudo tee /var/www/html/index.html
+cd /usr/lib/jvm
+sudo rm -rf *1.7.0*
+yum install java-1.8.0-openjdk-devel -y
+curl --silent --location http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo | sudo tee /etc/yum.repos.d/jenkins.repo
+sudo rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
+yum install -y jenkins
+echo "export JAVA_HOME=/usr/lib/jvm/jre-1.8.0/bin" >> /home/ec2-user/.bash_profile
+echo "export PATH=$PATH:$JAVA_HOME" >> /home/ec2-user/.bash_profile
+. /home/ec2-user/.bash_profile
+sudo service jenkins restart
+curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
+sudo yum install nodejs -y
+sudo yum install mysql -y 
+sudo yum install python-dev python-pip -y 
+sudo yum install php-cli php-zip wget unzip -y
+sudo php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+HASH="$(wget -q -O - https://composer.github.io/installer.sig)" 
+php -r "if (hash_file('SHA384', 'composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer

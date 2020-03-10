@@ -1,0 +1,7 @@
+variable "keyname" {
+
+}
+
+variable "publickey" {
+
+}
