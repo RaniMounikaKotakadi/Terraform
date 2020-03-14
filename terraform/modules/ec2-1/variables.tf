@@ -1,4 +1,1 @@
 
-variable "region" {
-  type = string
-}

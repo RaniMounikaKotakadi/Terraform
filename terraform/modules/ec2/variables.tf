@@ -1,8 +1,3 @@
-
-variable "region" {
-  type = string
-}
-
 variable "aminame" {
   type = string
 }
