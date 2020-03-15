@@ -25,7 +25,19 @@ module "lambda" {
   role_arn           = module.lambda_role.role_arn
 
 }
-module "lambda_role"{
+
+module "lambda_role" {
   source = "./modules/lambda-role"
 
 }
+
+module "s3" {
+  source = "./modules/s3"
+
+    bucket = "mouni-test-s3-terraform-bucket"
+    acl = "private"
+    tags = {
+    Name = "mouni-test-s3-terraform-bucket"
+  }
+}
+
