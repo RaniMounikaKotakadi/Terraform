@@ -18,7 +18,7 @@ module "image" {
   instance_type = "t2.micro"
   subnet_id = module.network.public_subnet_id
   security_groups = module.network.public_security_groups
-
+  
 }
 
 module "deploy" {
