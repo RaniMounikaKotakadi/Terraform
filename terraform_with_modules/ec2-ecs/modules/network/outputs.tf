@@ -1,3 +1,6 @@
+output "vpcid" {
+  value = aws_vpc.terraform_vpc.id
+}
 output "private_subnet" {
   value = element(aws_subnet.private_subnet[*].id, 0)
 }

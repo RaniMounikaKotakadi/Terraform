@@ -9,7 +9,3 @@ variable "public_subnet" {
 variable "private_subnet" {
   type = map
 }
-
-variable "bucket" {
-  type = string
-}

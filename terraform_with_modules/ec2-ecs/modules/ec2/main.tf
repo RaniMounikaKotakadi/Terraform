@@ -14,18 +14,34 @@ data "aws_ami" "ami" {
   owners = [var.owner] # Canonical
 }
 
+resource "aws_iam_role" "ecs_role_custom" {
+  name = "ecs_role_custom"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Resource = "*"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
 resource "aws_iam_instance_profile" "ecs" {
   name = "bastion_profile"
   role = "${aws_iam_role.ecs_role_custom.name}"
 }
 
-resource "aws_key_pair" "ecsec2" {
-  key_name   = "${var.keyname}"
-  public_key = "${var.pubkey}"
-}
+#resource "aws_key_pair" "ecsec2" {
+#  key_name   = "${var.keyname}"
+#}
 
 resource "aws_default_security_group" "default" {
-  vpc_id = aws_default_vpc.default.id
+  vpc_id = "${var.vpcid}"
 
   ingress {
     from_port = 80
@@ -62,7 +78,7 @@ resource "aws_instance" "instance" {
   instance_type          = "t2.micro"
   subnet_id              = "${var.public_subnets}"
   vpc_security_group_ids = [aws_default_security_group.default.id]
-  key_name = "${aws_key_pair.ecsec2.key_name}"
+  key_name = "${var.keyname}"
   iam_instance_profile = "${aws_iam_instance_profile.ecs.name}" #Administrative Access
 
   tags = {

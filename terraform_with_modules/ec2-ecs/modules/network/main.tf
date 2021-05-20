@@ -1,17 +1,17 @@
 data "aws_availability_zones" "available" {}
 
 #Create VPC
-resource "aws_vpc" "archeplay_vpc" {
+resource "aws_vpc" "terraform_vpc" {
   cidr_block = var.cidr
   
   tags = {
-    Name = "archeplay_vpc"
+    Name = "terraform_vpc"
   }
 }
 
 #Creating Public subnets
 resource "aws_subnet" "public_subnet" {
-  vpc_id = aws_vpc.archeplay_vpc.id
+  vpc_id = aws_vpc.terraform_vpc.id
   count = length(var.public_subnet)
   # cidr_block = var.public_subnet[count.index]
   cidr_block = element(values(var.public_subnet), count.index)
@@ -25,7 +25,7 @@ resource "aws_subnet" "public_subnet" {
 
 #Creating Private subnets
 resource "aws_subnet" "private_subnet" {
-  vpc_id = aws_vpc.archeplay_vpc.id
+  vpc_id = aws_vpc.terraform_vpc.id
   count = length(var.private_subnet)
   # cidr_block = var.private_subnet[count.index]
   cidr_block = element(values(var.private_subnet), count.index)
@@ -37,17 +37,11 @@ resource "aws_subnet" "private_subnet" {
   }
 }
 
-#Creating VPC End point
-  resource "aws_vpc_endpoint" "s3" {
-  vpc_id = aws_vpc.archeplay_vpc.id
-  service_name = "com.amazonaws.us-east-1.s3"
-}
-
 #Creating public Security Group
   resource "aws_security_group" "archeplay_SG_public" {
   name = "archeplay_SG_public"
   description = "Public subnets SG"
-  vpc_id = aws_vpc.archeplay_vpc.id
+  vpc_id = aws_vpc.terraform_vpc.id
 
   ingress{
     from_port = "443"
@@ -84,7 +78,7 @@ resource "aws_subnet" "private_subnet" {
 resource "aws_security_group" "archeplay_SG_private" {
   name = "archeplay_SG_private"
   description = "Private subnet SG"
-  vpc_id = aws_vpc.archeplay_vpc.id
+  vpc_id = aws_vpc.terraform_vpc.id
 
   ingress{
     from_port = "443"
@@ -119,7 +113,7 @@ resource "aws_security_group" "archeplay_SG_private" {
 
 #Creating IGW to get access over internet
 resource "aws_internet_gateway" "archeplay_igw" {
-  vpc_id = aws_vpc.archeplay_vpc.id
+  vpc_id = aws_vpc.terraform_vpc.id
 
   tags = {
     Name = "archeplay_igw"
@@ -129,7 +123,7 @@ resource "aws_internet_gateway" "archeplay_igw" {
 
 #Creating route table
 resource "aws_route_table" "archeplay_rt" {
-  vpc_id = aws_vpc.archeplay_vpc.id
+  vpc_id = aws_vpc.terraform_vpc.id
 }
 
 #Route table association
@@ -144,11 +138,4 @@ resource "aws_route" "route" {
   route_table_id = aws_route_table.archeplay_rt.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id = aws_internet_gateway.archeplay_igw.id
-}
-
-#VPC endpoint route table association
-resource "aws_vpc_endpoint_route_table_association" "vpc_ep_rt_association" {
-  route_table_id = aws_route_table.archeplay_rt.id
-  vpc_endpoint_id = aws_vpc_endpoint.s3.id
-  
 }
